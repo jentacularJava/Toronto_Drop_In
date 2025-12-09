@@ -1,0 +1,59 @@
+import { useState, useEffect } from 'react';
+import initSqlJs from 'sql.js';
+
+export function useSportsDatabase() {
+  const [db, setDb] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filterOptions, setFilterOptions] = useState(null);
+
+  useEffect(() => {
+    async function loadDatabase() {
+      try {
+        console.log('Loading sports database...');
+
+        // Initialize SQL.js
+        const SQL = await initSqlJs({
+          locateFile: file => `https://sql.js.org/dist/${file}`
+        });
+
+        // Load pre-built database
+        const response = await fetch('/toronto-dropin-sports/sports.db');
+        if (!response.ok) {
+          throw new Error('Failed to load database');
+        }
+
+        const buffer = await response.arrayBuffer();
+        const database = new SQL.Database(new Uint8Array(buffer));
+
+        // Get filter options
+        const sports = database
+          .exec('SELECT DISTINCT sport FROM sports_schedule ORDER BY sport')[0]
+          ?.values.flat() || [];
+
+        const districts = database
+          .exec(`
+            SELECT DISTINCT district 
+            FROM sports_schedule 
+            WHERE district IS NOT NULL AND district != '' 
+            ORDER BY district
+          `)[0]?.values.flat() || [];
+
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        setDb(database);
+        setFilterOptions({ sports, districts, days });
+        console.log('✅ Database loaded successfully');
+      } catch (err) {
+        console.error('Database loading error:', err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadDatabase();
+  }, []);
+
+  return { db, isLoading, error, filterOptions };
+}
