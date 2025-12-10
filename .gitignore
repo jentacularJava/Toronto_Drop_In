@@ -25,3 +25,6 @@ dist-ssr
 
 # Database file (will be regenerated at build time)
 public/sports.db
+
+# Ignore my notes
+project.md
