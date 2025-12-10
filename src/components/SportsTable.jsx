@@ -86,7 +86,6 @@ export default function SportsTable({ results }) {
             <tr>
               <SortableHeader label="Sport" sortKey="sport" sortConfig={sortConfig} onSort={handleSort} />
               <SortableHeader label="Location" sortKey="location_name" sortConfig={sortConfig} onSort={handleSort} />
-              {/* <SortableHeader label="District" sortKey="district" sortConfig={sortConfig} onSort={handleSort} /> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Address
               </th>
@@ -107,9 +106,6 @@ export default function SportsTable({ results }) {
                 <td className="px-6 py-4 text-sm text-gray-900">
                   {row.location_name}
                 </td>
-                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {row.district}
-                </td> */}
                 <td className="px-6 py-4 text-sm text-gray-500">
                   {row.address}
                 </td>

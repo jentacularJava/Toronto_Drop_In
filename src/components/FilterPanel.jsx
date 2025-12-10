@@ -105,19 +105,6 @@ export default function FilterPanel({ filters, filterOptions, onFilterChange }) 
           />
         </div>
 
-        {/* District Multi-Select
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            District
-          </label>
-          <MultiSelect
-            options={filterOptions.districts}
-            selected={filters.districts}
-            onChange={(values) => onFilterChange('districts', values)}
-            placeholder="All districts"
-          />
-        </div> */}
-
         {/* Location Multi-Select */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

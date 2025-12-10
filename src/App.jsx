@@ -9,7 +9,7 @@ import ErrorScreen from './components/ErrorScreen';
 function App() {
   const { db, isLoading, error, filterOptions } = useSportsDatabase();
 
-  // Calculate default date range: today + 7 days
+  // Calculate default date range: today + 7 days 
   const defaultStartDate = new Date().toISOString().split('T')[0];
   const defaultEndDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     .toISOString()
