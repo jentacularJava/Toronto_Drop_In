@@ -34,7 +34,7 @@ async function buildDatabase() {
   const filteredDropin = dropinRecords.filter(record => {
     const firstDate = record['First Date'];
     return (
-      record['Section'] === 'Sports - Drop-In' &&
+      // record['Section'] === 'Sports - Drop-In' &&
       firstDate >= today &&
       firstDate <= thirtyDaysFromNow
     );
@@ -89,8 +89,8 @@ function createTables(db) {
       course_id INTEGER NOT NULL,
       course_title TEXT NOT NULL,
       section TEXT,
-      age_min_months INTEGER,
-      age_max_months INTEGER,
+      age_min INTEGER,
+      age_max INTEGER,
       date_range TEXT,
       start_hour INTEGER,
       start_minute INTEGER,
@@ -120,6 +120,44 @@ function createTables(db) {
   `);
 }
 
+// function createSportsView(db) {
+//   db.run(`
+//     CREATE VIEW sports_schedule AS
+//     SELECT 
+//       d.course_id,
+//       d.course_title as sport,
+//       l.location_name,
+//       l.district,
+//       TRIM(
+//         COALESCE(l.street_no || ' ', '') || 
+//         COALESCE(l.street_name || ' ', '') || 
+//         COALESCE(l.street_type || ' ', '') || 
+//         COALESCE(l.street_direction, '')
+//       ) as address,
+//       l.intersection,
+//       l.accessibility,
+//       l.ttc_info,
+//       d.day_of_week as day,
+//       printf('%02d:%02d', d.start_hour, d.start_minute) || ' - ' ||
+//         printf('%02d:%02d', d.end_hour, d.end_minute) as time,
+//       d.start_hour,
+//       d.first_date as date,
+//       CASE 
+//       WHEN d.age_min IS NULL AND d.age_max IS NULL
+//       THEN 'All Ages'
+//       WHEN d.age_min = 0 AND (d.age_max IS NULL OR d.age_max = 0)
+//       THEN 'All Ages'
+//       WHEN d.age_max IS NULL OR d.age_max = 0
+//       THEN CAST(d.age_min / 12 AS TEXT) || '+'
+//       ELSE CAST(d.age_min / 12 AS TEXT) || '-' || 
+//           CAST(d.age_max / 12 AS TEXT)
+//     END as age_range
+//     FROM dropin d
+//     LEFT JOIN locations l ON d.location_id = l.location_id
+//     ORDER BY d.first_date, d.start_hour
+//   `);
+// }
+
 function createSportsView(db) {
   db.run(`
     CREATE VIEW sports_schedule AS
@@ -143,10 +181,14 @@ function createSportsView(db) {
       d.start_hour,
       d.first_date as date,
       CASE 
-        WHEN d.age_max_months IS NULL OR d.age_max_months = 0
-        THEN CAST(d.age_min_months / 12 AS TEXT) || '+'
-        ELSE CAST(d.age_min_months / 12 AS TEXT) || '-' || 
-             CAST(d.age_max_months / 12 AS TEXT)
+        WHEN d.age_min IS NULL AND d.age_max IS NULL
+        THEN 'All'
+        WHEN d.age_min = 0 AND (d.age_max IS NULL OR d.age_max = 0)
+        THEN 'All'
+        WHEN d.age_max IS NULL OR d.age_max = 0
+        THEN CAST(d.age_min AS TEXT) || '+'
+        ELSE CAST(d.age_min AS TEXT) || '-' || 
+             CAST(d.age_max AS TEXT)
       END as age_range
     FROM dropin d
     LEFT JOIN locations l ON d.location_id = l.location_id
@@ -189,6 +231,38 @@ function insertDropinRecords(db, records) {
   stmt.free();
 }
 
+// function insertLocationRecords(db, records) {
+//   const stmt = db.prepare(`
+//     INSERT INTO locations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//   `);
+
+//   const insertedIds = new Set();
+
+//   records.forEach(record => {
+//     const locationId = parseInt(record['Location ID']);
+//     if (!locationId || insertedIds.has(locationId)) return;
+
+//     stmt.run([
+//       locationId,
+//       record['Location Name'] || '',
+//       record['Location Type'] || '',
+//       record['Accessibility'] || '',
+//       record['Intersection'] || '',
+//       record['TTC Information'] || '',
+//       record['District'] || '',
+//       record['Street No'] || '',
+//       record['Street Name'] || '',
+//       record['Street Type'] || '',
+//       record['Street Direction'] || '',
+//       record['Postal Code'] || ''
+//     ]);
+
+//     insertedIds.add(locationId);
+//   });
+
+//   stmt.free();
+// }
+
 function insertLocationRecords(db, records) {
   const stmt = db.prepare(`
     INSERT INTO locations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -196,23 +270,29 @@ function insertLocationRecords(db, records) {
 
   const insertedIds = new Set();
 
+  // Helper function to clean values - convert "None" to empty string
+  const cleanValue = (value) => {
+    if (!value || value === 'None' || value.trim() === '') return '';
+    return value;
+  };
+
   records.forEach(record => {
     const locationId = parseInt(record['Location ID']);
     if (!locationId || insertedIds.has(locationId)) return;
 
     stmt.run([
       locationId,
-      record['Location Name'] || '',
-      record['Location Type'] || '',
-      record['Accessibility'] || '',
-      record['Intersection'] || '',
-      record['TTC Information'] || '',
-      record['District'] || '',
-      record['Street No'] || '',
-      record['Street Name'] || '',
-      record['Street Type'] || '',
-      record['Street Direction'] || '',
-      record['Postal Code'] || ''
+      cleanValue(record['Location Name']),
+      cleanValue(record['Location Type']),
+      cleanValue(record['Accessibility']),
+      cleanValue(record['Intersection']),
+      cleanValue(record['TTC Information']),
+      cleanValue(record['District']),
+      cleanValue(record['Street No']),
+      cleanValue(record['Street Name']),
+      cleanValue(record['Street Type']),
+      cleanValue(record['Street Direction']),
+      cleanValue(record['Postal Code'])
     ]);
 
     insertedIds.add(locationId);
@@ -221,9 +301,16 @@ function insertLocationRecords(db, records) {
   stmt.free();
 }
 
+// function parseAge(ageString) {
+//   if (!ageString || ageString === 'None' || ageString === '') return null;
+//   return parseInt(ageString) || null;
+// }
+
 function parseAge(ageString) {
   if (!ageString || ageString === 'None' || ageString === '') return null;
-  return parseInt(ageString) || null;
+  const parsed = parseInt(ageString);
+  // Use isNaN check instead of || null to preserve 0 as a valid age
+  return isNaN(parsed) ? null : parsed;
 }
 
 function parseCSV(csvText) {

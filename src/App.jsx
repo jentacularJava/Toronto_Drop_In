@@ -20,7 +20,8 @@ function App() {
     endDate: defaultEndDate,
     sports: [],
     days: [],
-    districts: [],
+    // districts: [],
+    locations: [],
     timeOfDay: null,
     searchText: ''
   });
@@ -76,10 +77,10 @@ function App() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Toronto Drop-In Sports Schedule
+            Toronto Drop-In Activities Schedule
           </h1>
           <p className="mt-2 text-sm text-gray-600">
-            Find drop-in sports activities across Toronto
+            Find drop-in activities across Toronto
           </p>
         </div>
       </header>
@@ -110,7 +111,7 @@ function App() {
             >
               Toronto Open Data
             </a>
-            . Updated daily at 8:00 AM.
+            .
           </p>
         </div>
       </footer>

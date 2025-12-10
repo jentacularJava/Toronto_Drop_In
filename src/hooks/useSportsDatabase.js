@@ -17,8 +17,14 @@ export function useSportsDatabase() {
           locateFile: file => `https://sql.js.org/dist/${file}`
         });
 
+        // // Load pre-built database
+        // const response = await fetch('/toronto-dropin-sports/sports.db');
+        // if (!response.ok) {
+        //   throw new Error('Failed to load database');
+        // }
+
         // Load pre-built database
-        const response = await fetch('/toronto-dropin-sports/sports.db');
+        const response = await fetch('/Toronto_Drop_In/sports.db');
         if (!response.ok) {
           throw new Error('Failed to load database');
         }
@@ -31,18 +37,26 @@ export function useSportsDatabase() {
           .exec('SELECT DISTINCT sport FROM sports_schedule ORDER BY sport')[0]
           ?.values.flat() || [];
 
-        const districts = database
+        // const districts = database
+        //   .exec(`
+        //     SELECT DISTINCT district 
+        //     FROM sports_schedule 
+        //     WHERE district IS NOT NULL AND district != '' 
+        //     ORDER BY district
+        //   `)[0]?.values.flat() || [];
+
+        const locations = database
           .exec(`
-            SELECT DISTINCT district 
+            SELECT DISTINCT location_name 
             FROM sports_schedule 
-            WHERE district IS NOT NULL AND district != '' 
-            ORDER BY district
+            WHERE location_name IS NOT NULL AND location_name != '' 
+            ORDER BY location_name
           `)[0]?.values.flat() || [];
 
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
         setDb(database);
-        setFilterOptions({ sports, districts, days });
+        setFilterOptions({ sports, locations, days });
         console.log('✅ Database loaded successfully');
       } catch (err) {
         console.error('Database loading error:', err);

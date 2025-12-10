@@ -3,6 +3,16 @@ import { useState, useMemo } from 'react';
 export default function FilterPanel({ filters, filterOptions, onFilterChange }) {
   const [isExpanded, setIsExpanded] = useState(true);
 
+    // Safeguard against undefined filterOptions
+    if (!filterOptions) {
+        return null;
+    }
+
+    // Debug logging
+    console.log('FilterPanel - filterOptions:', filterOptions);
+    console.log('FilterPanel - filters.locations:', filters.locations);
+
+
   // Calculate max selectable end date (start + 7 days)
   const maxEndDate = useMemo(() => {
     if (!filters.startDate) return '';
@@ -95,7 +105,7 @@ export default function FilterPanel({ filters, filterOptions, onFilterChange }) 
           />
         </div>
 
-        {/* District Multi-Select */}
+        {/* District Multi-Select
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             District
@@ -105,6 +115,19 @@ export default function FilterPanel({ filters, filterOptions, onFilterChange }) 
             selected={filters.districts}
             onChange={(values) => onFilterChange('districts', values)}
             placeholder="All districts"
+          />
+        </div> */}
+
+        {/* Location Multi-Select */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Location
+          </label>
+          <MultiSelect
+            options={filterOptions.locations}
+            selected={filters.locations}
+            onChange={(values) => onFilterChange('locations', values)}
+            placeholder="All locations"
           />
         </div>
 
@@ -153,7 +176,8 @@ export default function FilterPanel({ filters, filterOptions, onFilterChange }) 
             onFilterChange('endDate', weekLater);
             onFilterChange('sports', []);
             onFilterChange('days', []);
-            onFilterChange('districts', []);
+            // onFilterChange('districts', []);
+            onFilterChange('locations', []);
             onFilterChange('timeOfDay', null);
             onFilterChange('searchText', '');
           }}

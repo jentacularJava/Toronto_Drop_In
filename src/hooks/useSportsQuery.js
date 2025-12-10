@@ -26,10 +26,18 @@ export function useSportsQuery(db, filters) {
         params.push(...filters.days);
       }
 
-      if (filters.districts?.length > 0) {
-        const placeholders = filters.districts.map(() => '?').join(',');
-        sql += ` AND district IN (${placeholders})`;
-        params.push(...filters.districts);
+    //   if (filters.districts?.length > 0) {
+    //     const placeholders = filters.districts.map(() => '?').join(',');
+    //     sql += ` AND district IN (${placeholders})`;
+    //     params.push(...filters.districts);
+    //   }
+
+      if (filters.locations?.length > 0) {
+        const placeholders = filters.locations.map(() => '?').join(',');
+        sql += ` AND location_name IN (${placeholders})`;
+        params.push(...filters.locations);
+        console.log('Location filter applied:', filters.locations);
+
       }
 
       if (filters.timeOfDay) {
