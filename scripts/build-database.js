@@ -1,9 +1,6 @@
 import initSqlJs from 'sql.js';
 import fs from 'fs';
 import fetch from 'node-fetch';
-import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
-
-const SQL = await initSqlJs({ locateFile: () => wasmUrl });
 
 const DROPIN_CSV_URL = 'https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/1a5be46a-4039-48cd-a2d2-8e702abf9516/resource/90f7fffe-658b-4a79-bce3-a91c1b5886de/download/drop-in.csv';
 const LOCATIONS_CSV_URL = 'https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/1a5be46a-4039-48cd-a2d2-8e702abf9516/resource/f4db24c4-1270-40e3-9c2d-44d7daf4f872/download/locations.csv';
@@ -13,7 +10,7 @@ async function buildDatabase() {
   console.log('🏗️  Building sports database...');
 
   // Initialize SQL.js
-  const SQL = await initSqlJs({ locateFile: () => wasmUrl });
+  const SQL = await initSqlJs();
   const db = new SQL.Database();
 
   // Download CSVs
