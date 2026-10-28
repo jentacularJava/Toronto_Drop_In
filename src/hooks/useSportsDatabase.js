@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import initSqlJs from 'sql.js';
+import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 
 export function useSportsDatabase() {
   const [db, setDb] = useState(null);
@@ -13,9 +14,7 @@ export function useSportsDatabase() {
         console.log('Loading sports database...');
 
         // Initialize SQL.js
-        const SQL = await initSqlJs({
-          locateFile: file => `https://sql.js.org/dist/${file}`
-        });
+        const SQL = await initSqlJs({ locateFile: () => wasmUrl });
 
         // Load pre-built database
         const response = await fetch('/Toronto_Drop_In/sports.db');
